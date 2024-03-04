@@ -8,6 +8,8 @@ from alembic import context
 from decouple import config
 from sqlmodel import SQLModel
 
+from app.db.models.user import UserModel
+
 DATABASE_URL = config("DB_URL")
 
 # this is the Alembic Config object, which provides
