@@ -59,6 +59,18 @@ async def login(request: LoginSchema, response: Response, session: AsyncSession 
     return user
 
 
+@router.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie(
+        key="Authorization",
+        httponly=True,
+    )
+
+    return {
+        "message": "Logout success"
+    }
+
+
 @router.get("/me")
 async def get_me(session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
     user_service = UserService(session)

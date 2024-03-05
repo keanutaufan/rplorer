@@ -16,5 +16,5 @@ async def get_sub(Authorization: Annotated[Union[str, None], Cookie()] = None):
     except:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User is logged out 1",
+            detail="User is logged out",
         )
