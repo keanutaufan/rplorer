@@ -3,4 +3,5 @@ uvicorn[standard]
 sqlmodel
 alembic
 python-decouple
-psycopg2-binary
+asyncpg
+argon2-cffi
