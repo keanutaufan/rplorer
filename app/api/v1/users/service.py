@@ -28,3 +28,8 @@ class UserService:
         statement = select(UserModel).where(UserModel.id == id)
         result = await self.session.exec(statement)
         return result
+    
+    async def get_user_by_username(self, username: str):
+        statement = select(UserModel).where(UserModel.username == username)
+        result = await self.session.exec(statement)
+        return result
