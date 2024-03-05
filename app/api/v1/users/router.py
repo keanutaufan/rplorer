@@ -5,6 +5,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.db.db import db_session
 from app.utils.crypto import hash_password, verify_hash, check_needs_rehash
 from app.utils.token import issue_access_token
+from app.deps.auth import get_sub
 from .schema import RegisterSchema, LoginSchema
 from .service import UserService
 
@@ -52,7 +53,22 @@ async def login(request: LoginSchema, response: Response, session: AsyncSession 
         key="Authorization",
         value=token,
         max_age=86400,
+        httponly=True,
     )
+
+    return user
+
+
+@router.get("/me")
+async def get_me(session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
+    user_service = UserService(session)
+
+    user = await user_service.get_user_by_id(sub)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User does not exist",
+        )
     
     return user
 
