@@ -5,3 +5,4 @@ alembic
 python-decouple
 asyncpg
 argon2-cffi
+python-jose[cryptograpy]
