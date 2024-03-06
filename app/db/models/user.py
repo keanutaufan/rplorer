@@ -1,6 +1,6 @@
 from sqlmodel import Field
 
-from app.db.models.base import UUIDModel, TimestampModel
+from .base import UUIDModel, TimestampModel
 
 class UserModel(TimestampModel, UUIDModel, table=True):
     __tablename__ = "users"
