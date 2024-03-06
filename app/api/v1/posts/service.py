@@ -28,3 +28,9 @@ class PostService:
         statement = select(PostModel).where(PostModel.author_id == author_id)
         result = await self.session.exec(statement)
         return result.all()
+    
+
+    async def get_post(self, post_id: uuid.UUID):
+        statement = select(PostModel).where(PostModel.id == post_id)
+        result = await self.session.exec(statement)
+        return result.first()

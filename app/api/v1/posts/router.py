@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
 import uuid
 
@@ -21,3 +21,27 @@ async def create_new_post(request: CreatePostSchema, session: AsyncSession = Dep
     )
 
     return new_post
+
+
+@router.get("/{post_id}")
+async def get_post(post_id: str, session: AsyncSession = Depends(db_session)):
+    post_service = PostService(session)
+
+    parsed_post_id = None
+
+    try:
+        parsed_post_id = uuid.UUID(post_id)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist"
+        )
+
+    post = await post_service.get_post(parsed_post_id)
+    if post == None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist",
+        )
+    
+    return post
