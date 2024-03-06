@@ -8,6 +8,7 @@ from app.utils.token import issue_access_token
 from app.deps.auth import get_sub
 from .schema import RegisterSchema, LoginSchema
 from .service import UserService
+from ..posts.service import PostService
 
 router = APIRouter()
 
@@ -97,3 +98,25 @@ async def get_user(username: str, session: AsyncSession = Depends(db_session)):
         )
     
     return user
+
+
+@router.get("/{username}/posts")
+async def get_user_posts(username: str, session: AsyncSession = Depends(db_session)):
+    user_service = UserService(session)
+    post_service = PostService(session)
+
+    user = await user_service.get_user_by_username(username)
+    if user == None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User does not exist",
+        )
+    
+    posts = await post_service.get_user_post(user.id)
+    if posts == None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist",
+        )
+    
+    return posts
