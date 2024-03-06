@@ -16,7 +16,8 @@ class PostService:
     async def create_post(self, author_id: uuid.UUID, content: str):
         new_post = PostModel(
             author_id=author_id,
-            content=content
+            content=content,
+            like_count=0,
         )
 
         self.session.add(new_post)
