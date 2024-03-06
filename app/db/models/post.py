@@ -6,4 +6,5 @@ from .base import UUIDModel, TimestampModel
 class PostModel(TimestampModel, UUIDModel, table=True):
     __tablename__ = "posts"
     content: str
+    like_count: int
     author_id: uuid_pkg.UUID = Field(foreign_key="users.id")
