@@ -79,7 +79,7 @@ async def like_post(post_id: str, session: AsyncSession = Depends(db_session), s
 
 
 @router.delete("/{post_id}/likes")
-async def like_post(post_id: str, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
+async def unlike_post(post_id: str, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
     post_service = PostService(session)
 
     parsed_post_id = None
@@ -107,3 +107,28 @@ async def like_post(post_id: str, session: AsyncSession = Depends(db_session), s
         )
     
     return post
+
+
+@router.get("/{post_id}/likes")
+async def get_post_likes(post_id: str, session: AsyncSession = Depends(db_session)):
+    post_service = PostService(session)
+
+    parsed_post_id = None
+
+    try:
+        parsed_post_id = uuid.UUID(post_id)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist"
+        )
+    
+    
+    likes = await post_service.get_post_likes(parsed_post_id)
+    if likes == None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist",
+        )
+    
+    return likes

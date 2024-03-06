@@ -1,12 +1,13 @@
 import uuid
 
 from fastapi import Depends
-from sqlmodel import select
+from sqlmodel import select, desc
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.db.db import db_session
 from app.db.models.post import PostModel
 from app.db.models.like import LikeModel
+from app.db.models.user import UserModel
 
 class PostService:
     def __init__(self, session: AsyncSession = Depends(db_session)):
@@ -85,3 +86,22 @@ class PostService:
         await self.session.refresh(post)
 
         return post
+    
+
+    async def get_post_likes(self, post_id: uuid.UUID):
+        statement = select(
+            LikeModel,
+            UserModel.username,
+            UserModel.bio,
+        ).where(LikeModel.post_id == post_id).join(UserModel).order_by(desc(LikeModel.created_at))
+        result = await self.session.exec(statement)
+        likes = result.all()
+        
+        users = []
+        for like in likes:
+            users.append({
+                "username": like.username,
+                "bio": like.bio,
+            })
+
+        return users
