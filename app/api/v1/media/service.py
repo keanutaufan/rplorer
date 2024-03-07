@@ -53,3 +53,27 @@ class MediaService:
         await self.session.refresh(new_media)
 
         return new_media
+    
+    
+    async def delete_media(self, media_id: uuid.UUID, user_id: uuid.UUID):
+        statement = select(MediaModel).where(MediaModel.id == media_id)
+        result = await self.session.exec(statement)
+        media = result.first()
+
+        if media == None:
+            raise FileNotFoundError()
+        
+        if media.uploader_id != user_id:
+            raise PermissionError()
+
+        path = pathlib.Path(f"{MEDIA_PATH}/{str(media.id)}{media.extension}")
+        
+        await self.session.delete(media)
+        try:
+            path.unlink()
+        except:
+            await self.session.rollback()
+            raise FileNotFoundError()
+        
+        await self.session.commit()
+        
