@@ -7,3 +7,5 @@ asyncpg
 argon2-cffi
 python-jose[cryptograpy]
 python-multipart
+pillow
+transformers
