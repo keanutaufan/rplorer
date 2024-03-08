@@ -14,6 +14,7 @@ from app.db.models.post_media import PostMediaModel
 class PostService:
     def __init__(self, session: AsyncSession = Depends(db_session)):
         self.session = session
+
     
     async def create_post(self, author_id: uuid.UUID, content: str, media_id: list[uuid.UUID]):
         post_id = uuid.uuid4()
@@ -47,23 +48,7 @@ class PostService:
     
 
     async def get_post(self, post_id: uuid.UUID):
-        statement = select(
-            PostModel,
-            UserModel,
-            PostMediaModel,
-            MediaModel,
-        ).join(
-            UserModel,
-            PostModel.author_id == UserModel.id,
-        ).join(
-            PostMediaModel,
-            PostMediaModel.post_id == PostModel.id,
-            isouter=True,
-        ).join(
-            MediaModel,
-            PostMediaModel.media_id == MediaModel.id,
-            isouter=True,
-        ).where(
+        statement = self.__get_full_post_request_statement().where(
             PostModel.id == post_id,
         )
 
@@ -192,3 +177,25 @@ class PostService:
             })
 
         return users
+    
+
+    def __get_full_post_request_statement(self):
+        statement = select(
+            PostModel,
+            UserModel,
+            PostMediaModel,
+            MediaModel,
+        ).join(
+            UserModel,
+            PostModel.author_id == UserModel.id,
+        ).join(
+            PostMediaModel,
+            PostMediaModel.post_id == PostModel.id,
+            isouter=True,
+        ).join(
+            MediaModel,
+            PostMediaModel.media_id == MediaModel.id,
+            isouter=True,
+        )
+
+        return statement
