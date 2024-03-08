@@ -10,7 +10,7 @@ from decouple import config
 from app.db.db import db_session
 from app.utils.filter import classify_image
 from app.db.models.media import MediaModel
-from app.db.models.user import UserModel
+from app.db.models.post_media import PostMediaModel
 
 from transformers import pipeline
 
