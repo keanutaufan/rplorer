@@ -8,6 +8,8 @@ from app.db.db import db_session
 from app.db.models.user import UserModel
 from app.utils.crypto import hash_password
 
+from .schema import UserUpdateSchema
+
 class UserService:
     def __init__(self, session: AsyncSession = Depends(db_session)):
         self.session = session
@@ -42,6 +44,26 @@ class UserService:
 
         new_hash = hash_password(new_password)
         user.secret = new_hash
+        self.session.add(user)
+        await self.session.commit()
+        await self.session.refresh(user)
+
+        return user
+    
+    async def update_user_by_id(self, id: uuid.UUID, display_name: str | None, bio: str | None):
+        statement = select(UserModel).where(UserModel.id == id)
+        result = await self.session.exec(statement)
+        user = result.first()
+
+        if user is None:
+            return None
+        
+        if display_name is not None:
+            user.display_name = display_name
+        
+        if bio is not None:
+            user.bio = bio
+
         self.session.add(user)
         await self.session.commit()
         await self.session.refresh(user)

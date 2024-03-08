@@ -19,3 +19,8 @@ class UserResponseSchema(BaseModel):
     bio: str | None
     created_at: datetime
     updated_at: datetime
+
+
+class UserUpdateSchema(BaseModel):
+    display_name: str | None = None
+    bio: str | None = None

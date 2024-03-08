@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, Response, status, HTTPException
+import uuid
 
+from fastapi import APIRouter, Depends, Response, status, HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.db.db import db_session
 from app.utils.crypto import hash_password, verify_hash, check_needs_rehash
 from app.utils.token import issue_access_token
 from app.deps.auth import get_sub
-from .schema import RegisterSchema, LoginSchema, UserResponseSchema
+from .schema import RegisterSchema, LoginSchema, UserResponseSchema, UserUpdateSchema
 from .service import UserService
 from ..posts.service import PostService
 
@@ -76,7 +77,26 @@ async def logout(response: Response):
 async def get_me(session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)) -> UserResponseSchema:
     user_service = UserService(session)
 
-    user = await user_service.get_user_by_id(sub)
+    user = await user_service.get_user_by_id(uuid.UUID(sub))
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User does not exist",
+        )
+    
+    return user
+
+
+@router.patch("/me")
+async def update_me(request: UserUpdateSchema, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)) -> UserResponseSchema:
+    user_service = UserService(session)
+
+    user = await user_service.update_user_by_id(
+        id=uuid.UUID(sub),
+        display_name=request.display_name,
+        bio=request.bio,
+    )
+
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
