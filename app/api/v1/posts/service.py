@@ -47,9 +47,6 @@ class PostService:
     
 
     async def get_post(self, post_id: uuid.UUID):
-        # statement = select(PostModel).where(PostModel.id == post_id)
-        # result = await self.session.exec(statement)
-        # return result.first()
         statement = select(
             PostModel,
             UserModel,
@@ -74,7 +71,7 @@ class PostService:
         result = result.all()
 
         if result is None or result.__len__() == 0:
-            return None
+            raise FileNotFoundError()
 
         post_media = []
         for post in result:
@@ -93,7 +90,25 @@ class PostService:
         }
 
         return post
-                
+    
+
+    async def update_post_content(self, post_id: uuid.UUID, user_id: uuid.UUID, content: str):
+        statement = select(PostModel).where(PostModel.id == post_id)
+        result = await self.session.exec(statement)
+        post = result.first()
+
+        if post == None:
+            raise FileNotFoundError()
+        
+        if post.author_id != user_id:
+            raise PermissionError()
+        
+        post.content = content
+
+        self.session.add(post)
+        await self.session.commit()
+
+        return await self.get_post(post_id)
     
 
     async def like_post(self, post_id: uuid.UUID, user_id: uuid.UUID):
@@ -101,10 +116,7 @@ class PostService:
         result = await self.session.exec(statement)
         post = result.first()
 
-        print("post id", post_id)
-        print("post", post)
         if post == None:
-            print("This is expected")
             return None
 
         post.like_count = post.like_count + 1

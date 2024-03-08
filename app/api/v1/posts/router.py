@@ -6,7 +6,7 @@ from app.db.db import db_session
 from app.deps.auth import get_sub
 
 from .service import PostService
-from .schema import CreatePostSchema
+from .schema import CreatePostSchema, UpdatePostSchema
 
 router = APIRouter()
 
@@ -49,15 +49,55 @@ async def get_post(post_id: str, session: AsyncSession = Depends(db_session)):
             detail="Post does not exist"
         )
 
-    post = await post_service.get_post(parsed_post_id)
-    if post == None:
+    try:
+        post = await post_service.get_post(parsed_post_id)
+        return post
+    except FileNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Post does not exist",
         )
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unexpected error happened",
+        )
     
-    return post
 
+
+@router.patch("/{post_id}")
+async def update_post(post_id: str, request: UpdatePostSchema, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
+    post_service = PostService(session)
+
+    parsed_post_id = None
+
+    try:
+        parsed_post_id = uuid.UUID(post_id)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist"
+        )
+
+    try:
+        post = await post_service.update_post_content(parsed_post_id, uuid.UUID(sub), request.content)
+        return post
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist"
+        )
+    except PermissionError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Post does not belong to user"
+        )
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unexpected error happened"
+        )
+        
 
 @router.post("/{post_id}/likes")
 async def like_post(post_id: str, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
