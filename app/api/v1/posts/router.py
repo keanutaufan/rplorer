@@ -146,6 +146,53 @@ async def add_post_media(post_id: str, request: UpdatePostMediaSchema, session: 
         )
     
 
+@router.delete("/{post_id}/media")
+async def delete_post_media(post_id: str, request: UpdatePostMediaSchema, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
+    post_service = PostService(session)
+
+    parsed_post_id = None
+
+    try:
+        parsed_post_id = uuid.UUID(post_id)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist"
+        )
+    
+    try:
+        parsed_media_id = uuid.UUID(request.media_id)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Media does not exist"
+        )
+
+    try:
+        post = await post_service.delete_post_media(parsed_post_id, uuid.UUID(sub), parsed_media_id)
+        return post
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist"
+        )
+    except PermissionError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Post does not belong to user"
+        )
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Media does not exist"
+        )
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You have already deleted this media"
+        )
+    
+
 @router.delete("/{post_id}")
 async def update_post(post_id: str, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
     post_service = PostService(session)

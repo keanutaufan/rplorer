@@ -171,6 +171,37 @@ class PostService:
         await self.session.commit()
 
         return await self.get_post(post_id)
+    
+
+    async def delete_post_media(self, post_id: uuid.UUID, user_id: uuid.UUID, media_id: uuid.UUID):
+        statement = select(PostModel).where(PostModel.id == post_id)
+        result = await self.session.exec(statement)
+        post = result.first()
+
+        if post is None:
+            raise FileNotFoundError()
+        
+        if post.author_id != user_id:
+            raise PermissionError()
+        
+        statement = select(MediaModel).where(MediaModel.id == media_id)
+        result = await self.session.exec(statement)
+        media = result.first()
+
+        if media is None or media.uploader_id != user_id:
+            raise ValueError()
+        
+        statement = select(PostMediaModel).where(
+            PostMediaModel.post_id == post_id,
+            PostMediaModel.media_id == media_id,
+        )
+        result = await self.session.exec(statement)
+        post_media = result.first()
+
+        await self.session.delete(post_media)
+        await self.session.commit()
+
+        return await self.get_post(post_id)
 
 
     async def delete_post(self, post_id: uuid.UUID, user_id: uuid.UUID):
