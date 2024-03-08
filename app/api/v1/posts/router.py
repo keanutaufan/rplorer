@@ -13,11 +13,23 @@ router = APIRouter()
 
 @router.post("/")
 async def create_new_post(request: CreatePostSchema, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
+    parsed_media_id = []
+
+    try:
+        for media_id in request.media:
+            parsed_media_id.append(uuid.UUID(media_id))
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Media does not exist"
+        )
+    
     post_service = PostService(session)
 
     new_post = await post_service.create_post(
         author_id=uuid.UUID(sub),
-        content=request.content
+        content=request.content,
+        media_id=parsed_media_id,
     )
 
     return new_post

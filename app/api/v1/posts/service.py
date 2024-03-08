@@ -8,19 +8,31 @@ from app.db.db import db_session
 from app.db.models.post import PostModel
 from app.db.models.like import LikeModel
 from app.db.models.user import UserModel
+from app.db.models.post_media import PostMediaModel
 
 class PostService:
     def __init__(self, session: AsyncSession = Depends(db_session)):
         self.session = session
     
-    async def create_post(self, author_id: uuid.UUID, content: str):
+    async def create_post(self, author_id: uuid.UUID, content: str, media_id: list[uuid.UUID]):
+        post_id = uuid.uuid4()
+
         new_post = PostModel(
+            id=post_id,
             author_id=author_id,
             content=content,
             like_count=0,
         )
 
         self.session.add(new_post)
+
+        for id in media_id:
+            link = PostMediaModel(
+                post_id=post_id,
+                media_id=id,
+            )
+            self.session.add(link)
+
         await self.session.commit()
         await self.session.refresh(new_post)
 

@@ -84,6 +84,3 @@ async def delete_media(media_id: str, session: AsyncSession = Depends(db_session
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unexpected error happened",
         )
-    
-
-router.mount("/upload/g/", StaticFiles(directory=pathlib.Path("media/uploads")), name="uploads")
