@@ -43,9 +43,6 @@ class PostService:
     
     
     async def get_user_post(self, author_id: uuid.UUID):
-        # statement = select(PostModel).where(PostModel.author_id == author_id)
-        # result = await self.session.exec(statement)
-        # return result.all()
         statement = self.__get_full_post_request_statement().where(
             PostModel.author_id == author_id,
         ).order_by(
@@ -142,6 +139,35 @@ class PostService:
         post.content = content
 
         self.session.add(post)
+        await self.session.commit()
+
+        return await self.get_post(post_id)
+    
+
+    async def add_post_media(self, post_id: uuid.UUID, user_id: uuid.UUID, media_id: uuid.UUID):
+        statement = select(PostModel).where(PostModel.id == post_id)
+        result = await self.session.exec(statement)
+        post = result.first()
+
+        if post is None:
+            raise FileNotFoundError()
+        
+        if post.author_id != user_id:
+            raise PermissionError()
+        
+        statement = select(MediaModel).where(MediaModel.id == media_id)
+        result = await self.session.exec(statement)
+        media = result.first()
+
+        if media is None or media.uploader_id != user_id:
+            raise ValueError()
+        
+        post_media = PostMediaModel(
+            post_id=post_id,
+            media_id=media_id,
+        )
+
+        self.session.add(post_media)
         await self.session.commit()
 
         return await self.get_post(post_id)

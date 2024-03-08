@@ -7,3 +7,7 @@ class CreatePostSchema(BaseModel):
 
 class UpdatePostSchema(BaseModel):
     content: str
+
+
+class UpdatePostMediaSchema(BaseModel):
+    media_id: str

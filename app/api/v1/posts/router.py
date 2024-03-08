@@ -6,7 +6,7 @@ from app.db.db import db_session
 from app.deps.auth import get_sub
 
 from .service import PostService
-from .schema import CreatePostSchema, UpdatePostSchema
+from .schema import CreatePostSchema, UpdatePostSchema, UpdatePostMediaSchema
 
 router = APIRouter()
 
@@ -96,6 +96,53 @@ async def update_post(post_id: str, request: UpdatePostSchema, session: AsyncSes
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unexpected error happened"
+        )
+
+
+@router.post("/{post_id}/media")
+async def add_post_media(post_id: str, request: UpdatePostMediaSchema, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
+    post_service = PostService(session)
+
+    parsed_post_id = None
+
+    try:
+        parsed_post_id = uuid.UUID(post_id)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist"
+        )
+    
+    try:
+        parsed_media_id = uuid.UUID(request.media_id)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Media does not exist"
+        )
+
+    try:
+        post = await post_service.add_post_media(parsed_post_id, uuid.UUID(sub), parsed_media_id)
+        return post
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist"
+        )
+    except PermissionError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Post does not belong to user"
+        )
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Media does not exist"
+        )
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You have already added this media"
         )
     
 
