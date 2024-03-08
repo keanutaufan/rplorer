@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class RegisterSchema(BaseModel):
     username: str
@@ -10,3 +11,11 @@ class RegisterSchema(BaseModel):
 class LoginSchema(BaseModel):
     username: str
     password: str
+
+
+class UserResponseSchema(BaseModel):
+    username: str
+    display_name: str
+    bio: str | None
+    created_at: datetime
+    updated_at: datetime

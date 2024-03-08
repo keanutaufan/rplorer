@@ -6,7 +6,7 @@ from app.db.db import db_session
 from app.utils.crypto import hash_password, verify_hash, check_needs_rehash
 from app.utils.token import issue_access_token
 from app.deps.auth import get_sub
-from .schema import RegisterSchema, LoginSchema
+from .schema import RegisterSchema, LoginSchema, UserResponseSchema
 from .service import UserService
 from ..posts.service import PostService
 
@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 @router.post("/register")
-async def register(request: RegisterSchema, session: AsyncSession = Depends(db_session)):
+async def register(request: RegisterSchema, session: AsyncSession = Depends(db_session)) -> UserResponseSchema:
     user_service = UserService(session)
 
     hash = hash_password(request.password)
@@ -27,7 +27,7 @@ async def register(request: RegisterSchema, session: AsyncSession = Depends(db_s
 
 
 @router.post("/login")
-async def login(request: LoginSchema, response: Response, session: AsyncSession = Depends(db_session)):
+async def login(request: LoginSchema, response: Response, session: AsyncSession = Depends(db_session)) -> UserResponseSchema:
     user_service = UserService(session)
 
     user = await user_service.get_user_by_username(request.username)
@@ -73,7 +73,7 @@ async def logout(response: Response):
 
 
 @router.get("/me")
-async def get_me(session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
+async def get_me(session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)) -> UserResponseSchema:
     user_service = UserService(session)
 
     user = await user_service.get_user_by_id(sub)
@@ -87,7 +87,7 @@ async def get_me(session: AsyncSession = Depends(db_session), sub: str = Depends
 
 
 @router.get("/{username}")
-async def get_user(username: str, session: AsyncSession = Depends(db_session)):
+async def get_user(username: str, session: AsyncSession = Depends(db_session)) -> UserResponseSchema:
     user_service = UserService(session)
 
     user = await user_service.get_user_by_username(username)
