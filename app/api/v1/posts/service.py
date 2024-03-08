@@ -1,4 +1,5 @@
 import uuid
+from copy import deepcopy
 
 from fastapi import Depends
 from sqlmodel import select, desc
@@ -42,10 +43,59 @@ class PostService:
     
     
     async def get_user_post(self, author_id: uuid.UUID):
-        statement = select(PostModel).where(PostModel.author_id == author_id)
+        # statement = select(PostModel).where(PostModel.author_id == author_id)
+        # result = await self.session.exec(statement)
+        # return result.all()
+        statement = self.__get_full_post_request_statement().where(
+            PostModel.author_id == author_id,
+        ).order_by(
+            desc(PostModel.created_at),
+            PostModel.id
+        )
+
         result = await self.session.exec(statement)
-        return result.all()
-    
+        result = result.all()
+
+        if result is None or result.__len__() == 0:
+            raise FileNotFoundError()
+        
+        posts = []
+        current_id = result[0].PostModel.id
+        post_media = []
+
+        for index, post in enumerate(result):
+            if post.PostModel.id != current_id:                
+                posts.append({
+                    "id": result[index-1].PostModel.id,
+                    "content": result[index-1].PostModel.content,
+                    "media": deepcopy(post_media),
+                    "author": {
+                        "username": result[index-1].UserModel.username,
+                        "display_name": result[index-1].UserModel.display_name,
+                    },
+                    "created_at": result[index-1].PostModel.created_at,
+                    "updated_at": result[index-1].PostModel.created_at,
+                })
+                post_media.clear()
+                current_id = post.PostModel.id
+
+            if post.MediaModel is not None:
+                post_media.append(f"{post.MediaModel.id}{post.MediaModel.extension}")
+
+        posts.append({
+            "id": result[-1].PostModel.id,
+            "content": result[-1].PostModel.content,
+            "media": deepcopy(post_media),
+            "author": {
+                "username": result[-1].UserModel.username,
+                "display_name": result[-1].UserModel.display_name,
+            },
+            "created_at": result[-1].PostModel.created_at,
+            "updated_at": result[-1].PostModel.created_at,
+        })
+
+        return posts
+        
 
     async def get_post(self, post_id: uuid.UUID):
         statement = self.__get_full_post_request_statement().where(
@@ -64,6 +114,7 @@ class PostService:
                 post_media.append(f"{post.MediaModel.id}{post.MediaModel.extension}")
         
         post = {
+            "id": result[0].PostModel.id,
             "content": result[0].PostModel.content,
             "media": post_media,
             "author": {
