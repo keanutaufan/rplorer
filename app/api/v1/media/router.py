@@ -1,8 +1,6 @@
 import uuid
-import pathlib
 
 from fastapi import APIRouter, Depends, status, HTTPException, UploadFile
-from fastapi.staticfiles import StaticFiles
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.db.db import db_session
