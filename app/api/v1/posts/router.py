@@ -62,7 +62,7 @@ async def get_post(post_id: str, session: AsyncSession = Depends(db_session)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unexpected error happened",
         )
-    
+
 
 
 @router.patch("/{post_id}")
@@ -149,8 +149,8 @@ async def like_post(post_id: str, session: AsyncSession = Depends(db_session), s
     
     
     try:
-        post = await post_service.like_post(parsed_post_id, uuid.UUID(sub))
-        if post == None:
+        like_count = await post_service.like_post(parsed_post_id, uuid.UUID(sub))
+        if like_count == None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Post does not exist",
@@ -161,7 +161,7 @@ async def like_post(post_id: str, session: AsyncSession = Depends(db_session), s
             detail="You have already liked this post",
         )
     
-    return post
+    return {"like_count": like_count}
 
 
 @router.delete("/{post_id}/likes")
@@ -180,8 +180,8 @@ async def unlike_post(post_id: str, session: AsyncSession = Depends(db_session),
     
     
     try:
-        post = await post_service.unlike_post(parsed_post_id, uuid.UUID(sub))
-        if post == None:
+        like_count = await post_service.unlike_post(parsed_post_id, uuid.UUID(sub))
+        if like_count == None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Post does not exist",
@@ -192,7 +192,7 @@ async def unlike_post(post_id: str, session: AsyncSession = Depends(db_session),
             detail="You have already unliked this post",
         )
     
-    return post
+    return {"like_count": like_count}
 
 
 @router.get("/{post_id}/likes")

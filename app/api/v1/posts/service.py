@@ -185,7 +185,7 @@ class PostService:
         await self.session.commit()
         await self.session.refresh(post)
         
-        return post
+        return post.like_count
     
 
     async def unlike_post(self, post_id: uuid.UUID, user_id: uuid.UUID):
@@ -208,7 +208,7 @@ class PostService:
         await self.session.commit()
         await self.session.refresh(post)
 
-        return post
+        return post.like_count
     
 
     async def get_post_likes(self, post_id: uuid.UUID):
