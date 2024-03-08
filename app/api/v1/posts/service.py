@@ -8,6 +8,7 @@ from app.db.db import db_session
 from app.db.models.post import PostModel
 from app.db.models.like import LikeModel
 from app.db.models.user import UserModel
+from app.db.models.media import MediaModel
 from app.db.models.post_media import PostMediaModel
 
 class PostService:
@@ -46,9 +47,53 @@ class PostService:
     
 
     async def get_post(self, post_id: uuid.UUID):
-        statement = select(PostModel).where(PostModel.id == post_id)
+        # statement = select(PostModel).where(PostModel.id == post_id)
+        # result = await self.session.exec(statement)
+        # return result.first()
+        statement = select(
+            PostModel,
+            UserModel,
+            PostMediaModel,
+            MediaModel,
+        ).join(
+            UserModel,
+            PostModel.author_id == UserModel.id,
+        ).join(
+            PostMediaModel,
+            PostMediaModel.post_id == PostModel.id,
+            isouter=True,
+        ).join(
+            MediaModel,
+            PostMediaModel.media_id == MediaModel.id,
+            isouter=True,
+        ).where(
+            PostModel.id == post_id,
+        )
+
         result = await self.session.exec(statement)
-        return result.first()
+        result = result.all()
+
+        if result is None or result.__len__() == 0:
+            return None
+
+        post_media = []
+        for post in result:
+            if post.MediaModel is not None:
+                post_media.append(f"{post.MediaModel.id}{post.MediaModel.extension}")
+        
+        post = {
+            "content": result[0].PostModel.content,
+            "media": post_media,
+            "author": {
+                "username": result[0].UserModel.username,
+                "display_name": result[0].UserModel.display_name,
+            },
+            "created_at": result[0].PostModel.created_at,
+            "updated_at": result[0].PostModel.created_at,
+        }
+
+        return post
+                
     
 
     async def like_post(self, post_id: uuid.UUID, user_id: uuid.UUID):
