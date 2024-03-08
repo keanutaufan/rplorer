@@ -194,7 +194,7 @@ async def delete_post_media(post_id: str, request: UpdatePostMediaSchema, sessio
     
 
 @router.delete("/{post_id}")
-async def update_post(post_id: str, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
+async def delete_post(post_id: str, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
     post_service = PostService(session)
 
     parsed_post_id = None
