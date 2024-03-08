@@ -1,6 +1,9 @@
-from fastapi import APIRouter, Depends, status, HTTPException, UploadFile
-from sqlmodel.ext.asyncio.session import AsyncSession
 import uuid
+import pathlib
+
+from fastapi import APIRouter, Depends, status, HTTPException, UploadFile
+from fastapi.staticfiles import StaticFiles
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.db.db import db_session
 from app.deps.auth import get_sub
@@ -82,3 +85,5 @@ async def delete_media(media_id: str, session: AsyncSession = Depends(db_session
             detail="Unexpected error happened",
         )
     
+
+router.mount("/upload/g/", StaticFiles(directory=pathlib.Path("media/uploads")), name="uploads")

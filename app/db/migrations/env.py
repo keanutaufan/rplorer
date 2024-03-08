@@ -14,6 +14,7 @@ from app.db.models.user import UserModel
 from app.db.models.post import PostModel
 from app.db.models.like import LikeModel
 from app.db.models.media import MediaModel
+from app.db.models.post_media import PostMediaModel
 
 DATABASE_URL = config("DB_URL")
 
