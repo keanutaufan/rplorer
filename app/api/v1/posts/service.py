@@ -215,7 +215,7 @@ class PostService:
         statement = select(
             LikeModel,
             UserModel.username,
-            UserModel.bio,
+            UserModel.display_name,
         ).where(LikeModel.post_id == post_id).join(UserModel).order_by(desc(LikeModel.created_at))
         result = await self.session.exec(statement)
         likes = result.all()
@@ -224,10 +224,14 @@ class PostService:
         for like in likes:
             users.append({
                 "username": like.username,
-                "bio": like.bio,
+                "display_name": like.display_name,
             })
 
-        return users
+        return {
+            "post_id": post_id,
+            "like_count": likes.__len__(),
+            "users": users,
+        }
     
 
     def __get_full_post_request_statement(self):
