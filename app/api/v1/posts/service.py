@@ -109,6 +109,23 @@ class PostService:
         await self.session.commit()
 
         return await self.get_post(post_id)
+
+
+    async def delete_post(self, post_id: uuid.UUID, user_id: uuid.UUID):
+        statement = select(PostModel).where(PostModel.id == post_id)
+        result = await self.session.exec(statement)
+        post = result.first()
+
+        if post == None:
+            raise FileNotFoundError()
+        
+        if post.author_id != user_id:
+            raise PermissionError()
+        
+        await self.session.delete(post)
+        await self.session.commit()
+
+        return None
     
 
     async def like_post(self, post_id: uuid.UUID, user_id: uuid.UUID):

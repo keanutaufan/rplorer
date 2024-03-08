@@ -97,6 +97,40 @@ async def update_post(post_id: str, request: UpdatePostSchema, session: AsyncSes
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unexpected error happened"
         )
+    
+
+@router.delete("/{post_id}")
+async def update_post(post_id: str, session: AsyncSession = Depends(db_session), sub: str = Depends(get_sub)):
+    post_service = PostService(session)
+
+    parsed_post_id = None
+
+    try:
+        parsed_post_id = uuid.UUID(post_id)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist"
+        )
+
+    try:
+        post = await post_service.delete_post(parsed_post_id, uuid.UUID(sub))
+        return { "message": "Post deleted" }
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post does not exist"
+        )
+    except PermissionError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Post does not belong to user"
+        )
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unexpected error happened"
+        )
         
 
 @router.post("/{post_id}/likes")
