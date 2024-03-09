@@ -66,6 +66,7 @@ class PostService:
                     "id": result[index-1].PostModel.id,
                     "content": result[index-1].PostModel.content,
                     "media": deepcopy(post_media),
+                    "like_count": result[index-1].PostModel.like_count,
                     "author": {
                         "username": result[index-1].UserModel.username,
                         "display_name": result[index-1].UserModel.display_name,
@@ -83,6 +84,7 @@ class PostService:
             "id": result[-1].PostModel.id,
             "content": result[-1].PostModel.content,
             "media": deepcopy(post_media),
+            "like_count": result[-1].PostModel.like_count,
             "author": {
                 "username": result[-1].UserModel.username,
                 "display_name": result[-1].UserModel.display_name,
@@ -114,6 +116,7 @@ class PostService:
             "id": result[0].PostModel.id,
             "content": result[0].PostModel.content,
             "media": post_media,
+            "like_count": result[0].PostModel.like_count,
             "author": {
                 "username": result[0].UserModel.username,
                 "display_name": result[0].UserModel.display_name,
