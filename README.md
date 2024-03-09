@@ -32,7 +32,7 @@ provided:
 
 - User can edit their own profile
 - Post can contain user uploaded media (image only for now)
-- Media upload is protected with Falcon AI's [NSFW Image Detection](https://huggingface.co/Falconsai/nsfw_image_detection) Deep Learning model
+- Media upload is protected with Falcons.AI's [NSFW Image Detection](https://huggingface.co/Falconsai/nsfw_image_detection) Deep Learning model
 
 ## How to Use
 
