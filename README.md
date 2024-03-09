@@ -15,14 +15,14 @@ Divison : Backend
 RPLorer is an API for hypothetical social media app. Requirement
 dictates that RPLorer API must implement at least these features:
 
-[x] Register
-[x] Login
-[x] Create post
-[x] Get list of posts made by specific user
-[x] Get post details
-[x] Like/unlike post
-[x] Edit post
-[x] Delete post
+- [x] Register
+- [x] Login
+- [x] Create post
+- [x] Get list of posts made by specific user
+- [x] Get post details
+- [x] Like/unlike post
+- [x] Edit post
+- [x] Delete post
 
 Participant is free to choose any tech stack to use. In this case,
 I experimented with Python web framework [FastAPI](https://github.com/tiangolo/fastapi/).
