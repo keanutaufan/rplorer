@@ -9,3 +9,5 @@ python-jose[cryptograpy]
 python-multipart
 pillow
 transformers
+torch
+torchvision
