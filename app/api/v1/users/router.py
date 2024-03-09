@@ -132,11 +132,17 @@ async def get_user_posts(username: str, session: AsyncSession = Depends(db_sessi
             detail="User does not exist",
         )
     
-    posts = await post_service.get_user_post(user.id)
-    if posts == None:
+    try:
+        posts = await post_service.get_user_post(user.id)
+    except FileNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Post does not exist",
+        )
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unexpected error happened",
         )
     
     return posts
