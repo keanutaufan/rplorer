@@ -1,6 +1,6 @@
 # RPLorer
 
-Created as assignment submission to [lab administrator recruitment](https://github.com/Lab-RPL-ITS/Modul-Oprec-BE-2024/tree/main)
+Created as assignment submission to [lab administrator recruitment task](https://github.com/Lab-RPL-ITS/Modul-Oprec-BE-2024/tree/main)
 of Software Engineering Research Lab, Sepuluh Nopember Institute 
 of Technology.
 
@@ -50,7 +50,7 @@ Notes:
 - `JWT_SECRET` is JWT private key used to issue access token
 - `MEDIA_PATH` is directory to host user uploaded file, be sure to exclude it in `.gitignore`
 - `FILTERED_MEDIA_PATH` is directory to host filtered image for improving deep learning model
-`IMAGE_FILTER_MODEL_PATH` is the path to [NSFW Image Detection](https://huggingface.co/Falconsai/nsfw_image_detection) Deep Learning model
+- `IMAGE_FILTER_MODEL_PATH` is the path to [NSFW Image Detection](https://huggingface.co/Falconsai/nsfw_image_detection) Deep Learning model
 
 
 ## Docs
